@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+<title>Дневник студента</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<aside class="side">
+  <div class="brand"><div class="logo">📘</div><div><b>Дневник</b><small>студента</small></div></div>
+  <nav id="nav">
+    <button data-view="home" class="active">🏠 Главная</button>
+    <button data-view="schedule">🗓️ Расписание</button>
+    <button data-view="absences">🚫 Пропуски</button>
+    <button data-view="grades">📊 Оценки</button>
+    <button data-view="subjects">📚 Предметы</button>
+    <button data-view="notes">✏️ Дневник</button>
+    <button data-view="portal">🌐 Портал el.ncfu.ru</button>
+    <button data-view="settings">⚙️ Настройки</button>
+  </nav>
+  <div class="who" id="who"></div>
+</aside>
+
+<main>
+  <!-- HOME -->
+  <section id="v-home" class="view active">
+    <h1>Добрый день<span id="hello-name"></span>!</h1>
+    <p class="muted" id="today-line"></p>
+    <div class="cards" id="stat-cards"></div>
+    <div class="grid2">
+      <div class="panel"><h3>Пары сегодня</h3><div id="today-pairs"></div></div>
+      <div class="panel"><h3>Пропуски по месяцам</h3><div id="home-chart"></div></div>
+    </div>
+    <div class="panel"><h3>Последние записи в дневнике</h3><div id="home-notes"></div></div>
+  </section>
+
+  <!-- SCHEDULE -->
+  <section id="v-schedule" class="view">
+    <div class="head"><h1>Расписание</h1>
+      <div class="seg" id="week-seg"><button data-w="all" class="on">Все недели</button><button data-w="1">Числитель</button><button data-w="2">Знаменатель</button></div>
+    </div>
+    <form class="row-form" id="f-schedule">
+      <select name="day" required>
+        <option value="1">Понедельник</option><option value="2">Вторник</option><option value="3">Среда</option>
+        <option value="4">Четверг</option><option value="5">Пятница</option><option value="6">Суббота</option>
+      </select>
+      <select name="pair" required>
+        <option value="1">1 пара 08:00–09:30</option><option value="2">2 пара 09:40–11:10</option>
+        <option value="3">3 пара 11:20–12:50</option><option value="4">4 пара 13:30–15:00</option>
+        <option value="5">5 пара 15:10–16:40</option><option value="6">6 пара 16:50–18:20</option>
+        <option value="7">7 пара 18:30–20:00</option>
+      </select>
+      <select name="subject" class="subj-select" required></select>
+      <select name="kind"><option>Лекция</option><option>Практика</option><option>Лабораторная</option><option>Семинар</option></select>
+      <select name="week"><option value="all">Каждую неделю</option><option value="1">Числитель</option><option value="2">Знаменатель</option></select>
+      <input name="room" placeholder="Аудитория">
+      <button class="btn">Добавить</button>
+    </form>
+    <div class="week" id="week-grid"></div>
+  </section>
+
+  <!-- ABSENCES -->
+  <section id="v-absences" class="view">
+    <h1>Пропуски</h1>
+    <div class="cards" id="abs-cards"></div>
+    <div class="grid2">
+      <div class="panel"><h3>График пропусков по месяцам</h3><div id="abs-month-chart"></div></div>
+      <div class="panel"><h3>Посещаемость по предметам</h3><div id="abs-subj-chart"></div></div>
+    </div>
+    <div class="panel">
+      <h3>Добавить пропуск</h3>
+      <form class="row-form" id="f-absence">
+        <input type="date" name="date" required>
+        <select name="subject" class="subj-select" required></select>
+        <input type="number" name="pairs" min="1" max="8" value="1" title="Количество пар" style="width:80px">
+        <select name="reason">
+          <option value="valid">Уважительная</option>
+          <option value="invalid">Неуважительная</option>
+        </select>
+        <input name="note" placeholder="Причина / справка">
+        <button class="btn">Добавить</button>
+      </form>
+      <div class="filters"><input id="abs-filter" placeholder="Поиск по предмету или причине…"></div>
+      <table class="tbl"><thead><tr><th>Дата</th><th>Предмет</th><th>Пар</th><th>Причина</th><th>Комментарий</th><th>Отработано</th><th></th></tr></thead><tbody id="abs-body"></tbody></table>
+    </div>
+  </section>
+
+  <!-- GRADES -->
+  <section id="v-grades" class="view">
+    <h1>Оценки и баллы</h1>
+    <div class="panel">
+      <form class="row-form" id="f-grade">
+        <input type="date" name="date" required>
+        <select name="subject" class="subj-select" required></select>
+        <select name="type"><option>Контрольная</option><option>Лабораторная</option><option>Практика</option><option>Тест</option><option>Доклад</option><option>Рейтинг (баллы)</option><option>Зачёт</option><option>Экзамен</option></select>
+        <input type="number" name="mark" min="0" max="100" placeholder="Оценка / баллы" required style="width:130px">
+        <input name="note" placeholder="Комментарий">
+        <button class="btn">Добавить</button>
+      </form>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>Средний балл по предметам</h3><div id="grade-chart"></div></div>
+      <div class="panel"><h3>Все оценки</h3><table class="tbl"><thead><tr><th>Дата</th><th>Предмет</th><th>Вид</th><th>Оценка</th><th></th></tr></thead><tbody id="grade-body"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- SUBJECTS -->
+  <section id="v-subjects" class="view">
+    <h1>Предметы</h1>
+    <div class="panel">
+      <form class="row-form" id="f-subject">
+        <input name="name" placeholder="Название предмета" required>
+        <input name="teacher" placeholder="Преподаватель">
+        <input type="number" name="total" min="1" placeholder="Всего пар за семестр" style="width:190px">
+        <select name="control"><option>Экзамен</option><option>Зачёт</option><option>Дифф. зачёт</option><option>Курсовая</option></select>
+        <input type="color" name="color" value="#4f7cff">
+        <button class="btn">Добавить</button>
+      </form>
+      <table class="tbl"><thead><tr><th></th><th>Предмет</th><th>Преподаватель</th><th>Контроль</th><th>Всего пар</th><th>Пропущено</th><th>Посещаемость</th><th></th></tr></thead><tbody id="subj-body"></tbody></table>
+    </div>
+  </section>
+
+  <!-- NOTES -->
+  <section id="v-notes" class="view">
+    <h1>Дневник</h1>
+    <div class="panel">
+      <form id="f-note" class="note-form">
+        <div class="row-form"><input type="date" name="date" required><input name="title" placeholder="Заголовок (например: «Домашка по матану»)" style="flex:1"><label class="chk"><input type="checkbox" name="todo"> это задача</label></div>
+        <textarea name="text" rows="3" placeholder="Что было, что задали, что не забыть…"></textarea>
+        <button class="btn">Сохранить запись</button>
+      </form>
+    </div>
+    <div id="notes-list"></div>
+  </section>
+
+  <!-- PORTAL -->
+  <section id="v-portal" class="view portal">
+    <div class="portal-bar">
+      <button class="btn ghost" id="pv-back">←</button>
+      <button class="btn ghost" id="pv-fwd">→</button>
+      <button class="btn ghost" id="pv-reload">⟳</button>
+      <button class="btn ghost" id="pv-home">Вход</button>
+      <span class="muted" id="pv-url">https://el.ncfu.ru/login/index.php</span>
+    </div>
+    <webview id="pv" src="about:blank" partition="persist:ncfu" allowpopups></webview>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="v-settings" class="view">
+    <h1>Настройки</h1>
+    <div class="panel">
+      <form id="f-profile" class="row-form">
+        <input name="name" placeholder="Имя Фамилия">
+        <input name="group" placeholder="Группа">
+        <input name="course" placeholder="Курс">
+        <input type="date" name="semStart" title="Начало семестра (для числителя/знаменателя)">
+        <button class="btn">Сохранить</button>
+      </form>
+      <p class="muted">Дата начала семестра нужна, чтобы определять текущую неделю (числитель/знаменатель).</p>
+    </div>
+    <div class="panel">
+      <h3>Данные</h3>
+      <p class="muted">Все данные хранятся только на этом компьютере.</p>
+      <div class="row-form">
+        <button class="btn" id="btn-export">💾 Сохранить резервную копию</button>
+        <label class="btn ghost">📂 Загрузить копию<input type="file" id="inp-import" accept=".json" hidden></label>
+        <button class="btn ghost" id="btn-demo">🧪 Заполнить примером</button>
+        <button class="btn danger" id="btn-clear">🗑️ Удалить всё</button>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

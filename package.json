@@ -1,0 +1,44 @@
+{
+  "name": "student-diary",
+  "version": "1.0.0",
+  "description": "Личный дневник студента: расписание, пропуски, оценки, заметки",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable nsis --x64"
+  },
+  "keywords": [],
+  "author": "Student",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "productName": "Дневник студента",
+  "build": {
+    "appId": "local.student.diary",
+    "productName": "Дневник студента",
+    "files": [
+      "main.js",
+      "app/**/*",
+      "build/icon.png"
+    ],
+    "win": {
+      "icon": "build/icon.png",
+      "signAndEditExecutable": false,
+      "artifactName": "Дневник-студента-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "Дневник-студента-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Дневник-студента-portable.exe"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  }
+}
