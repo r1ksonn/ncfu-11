@@ -1,5 +1,5 @@
 'use strict';
-const PORTAL = 'https://el.ncfu.ru/login/index.php';
+const ECAMPUS = 'https://ecampus.ncfu.ru/';
 const DAYS = ['', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
 const PAIRS = ['', '08:00–09:30', '09:40–11:10', '11:20–12:50', '13:30–15:00', '15:10–16:40', '16:50–18:20', '18:30–20:00'];
 const MONTHS = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
@@ -19,12 +19,12 @@ const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('
 const formData = f => Object.fromEntries(new FormData(f).entries());
 
 /* ---------- navigation ---------- */
-let portalLoaded = false;
 document.querySelectorAll('#nav button').forEach(b => b.onclick = () => go(b.dataset.view));
 function go(v) {
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('active', b.dataset.view === v));
   document.querySelectorAll('.view').forEach(s => s.classList.toggle('active', s.id === 'v-' + v));
-  if (v === 'portal' && !portalLoaded) { $('#pv').src = PORTAL; portalLoaded = true; }
+  const sec = $('#v-' + v);
+  if (sec.classList.contains('web')) { const wv = sec.querySelector('webview'); if (!sec.dataset.loaded) { wv.src = sec.dataset.home; sec.dataset.loaded = '1'; } }
   render();
 }
 
@@ -276,14 +276,59 @@ $('#btn-demo').onclick = () => {
   save(); render(); toast('Пример добавлен');
 };
 
-/* ---------- portal webview ---------- */
-const pv = $('#pv');
-pv.addEventListener('did-navigate', e => $('#pv-url').textContent = e.url);
-pv.addEventListener('did-navigate-in-page', e => $('#pv-url').textContent = e.url);
-$('#pv-back').onclick = () => pv.canGoBack() && pv.goBack();
-$('#pv-fwd').onclick = () => pv.canGoForward() && pv.goForward();
-$('#pv-reload').onclick = () => pv.reload();
-$('#pv-home').onclick = () => pv.loadURL(PORTAL);
+/* ---------- вход в eCampus ---------- */
+// Вход происходит на настоящем сайте ecampus.ncfu.ru внутри окна программы.
+// Программа не видит и не хранит пароль: она только смотрит, ушёл ли сайт со страницы входа.
+const isLoginPage = url => { try { const u = new URL(url); return /\/account\/(login|logon|signin)/i.test(u.pathname) || /login|auth|sso|adfs/i.test(u.hostname.split('.')[0]); } catch { return true; } };
+const isEcampus = url => { try { return new URL(url).hostname === 'ecampus.ncfu.ru'; } catch { return false; } };
+const gateWv = $('#gate-wv');
+const setAuthed = on => {
+  document.body.classList.toggle('authed', on);
+  if (on) go('ecampus');
+};
+gateWv.addEventListener('did-navigate', e => {
+  if (isEcampus(e.url) && !isLoginPage(e.url)) setAuthed(true);
+  else $('#gate-status').textContent = 'Войдите в свой аккаунт eCampus, чтобы продолжить';
+});
+function offline(msg) {
+  if (document.body.classList.contains('authed')) return;
+  $('#gate-status').innerHTML = esc(msg) + ' <a href="#" id="gate-offline">Открыть дневник без входа</a>';
+  $('#gate-offline').onclick = ev => { ev.preventDefault(); document.body.classList.add('authed'); go('home'); };
+}
+gateWv.addEventListener('did-fail-load', e => {
+  if (!e.isMainFrame || e.errorCode === -3) return;
+  offline('Не удалось открыть eCampus (нет интернета?).');
+});
+setTimeout(() => { let u = ''; try { u = gateWv.getURL(); } catch {} if (!u || u === 'about:blank') offline('eCampus долго не отвечает.'); }, 20000);
+$('#gate-reload').onclick = () => gateWv.loadURL(ECAMPUS);
+
+
+$('#btn-logout').onclick = async () => {
+  if (!confirm('Выйти из аккаунта eCampus?')) return;
+  if (window.ecampus) await window.ecampus.logout();
+  document.querySelectorAll('.view.web').forEach(sec => { delete sec.dataset.loaded; sec.querySelector('webview').src = 'about:blank'; });
+  document.body.classList.remove('authed');
+  gateWv.loadURL(ECAMPUS);
+};
+
+/* ---------- встроенные сайты (Ecampus, Мои курсы) ---------- */
+document.querySelectorAll('.view.web').forEach(sec => {
+  const wv = sec.querySelector('webview'), urlEl = sec.querySelector('.url');
+  const show = e => { if (e.url && e.url !== 'about:blank') urlEl.textContent = e.url; };
+  wv.addEventListener('did-navigate', e => {
+    show(e);
+    // если сессия eCampus истекла — снова показываем экран входа
+    if (sec.id === 'v-ecampus' && isEcampus(e.url) && isLoginPage(e.url)) { document.body.classList.remove('authed'); gateWv.loadURL(ECAMPUS); }
+  });
+  wv.addEventListener('did-navigate-in-page', show);
+  sec.querySelectorAll('[data-act]').forEach(b => b.onclick = () => {
+    const a = b.dataset.act;
+    if (a === 'back' && wv.canGoBack()) wv.goBack();
+    if (a === 'fwd' && wv.canGoForward()) wv.goForward();
+    if (a === 'reload') wv.reload();
+    if (a === 'home') wv.loadURL(sec.dataset.home);
+  });
+});
 
 setDefaults();
 render();

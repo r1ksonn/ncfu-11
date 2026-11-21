@@ -2,24 +2,38 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; img-src 'self' data:;">
-<title>Дневник студента</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https: about:; child-src https: about:;">
+<title>Ecampus</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<!-- ЭКРАН ВХОДА: настоящая страница входа eCampus -->
+<div id="gate">
+  <div class="gate-head">
+    <div class="brand dark"><div class="logo">🎓</div><div><b>Ecampus</b><small>вход в личный кабинет</small></div></div>
+    <span class="muted" id="gate-status">Войдите в свой аккаунт eCampus, чтобы продолжить</span>
+    <button class="btn ghost" id="gate-reload">⟳</button>
+  </div>
+  <webview id="gate-wv" src="https://ecampus.ncfu.ru/" partition="persist:ncfu" allowpopups></webview>
+</div>
+
 <aside class="side">
-  <div class="brand"><div class="logo">📘</div><div><b>Дневник</b><small>студента</small></div></div>
+  <div class="brand"><div class="logo">🎓</div><div><b>Ecampus</b><small>успеваемость студента</small></div></div>
   <nav id="nav">
-    <button data-view="home" class="active">🏠 Главная</button>
+    <div class="nav-h">Университет</div>
+    <button data-view="ecampus">🎓 Ecampus</button>
+    <button data-view="courses">📚 Мои курсы</button>
+    <div class="nav-h">Мой дневник</div>
+    <button data-view="home" class="active">🏠 Сводка</button>
     <button data-view="schedule">🗓️ Расписание</button>
     <button data-view="absences">🚫 Пропуски</button>
     <button data-view="grades">📊 Оценки</button>
-    <button data-view="subjects">📚 Предметы</button>
-    <button data-view="notes">✏️ Дневник</button>
-    <button data-view="portal">🌐 Портал el.ncfu.ru</button>
+    <button data-view="subjects">📒 Предметы</button>
+    <button data-view="notes">✏️ Заметки</button>
     <button data-view="settings">⚙️ Настройки</button>
   </nav>
   <div class="who" id="who"></div>
+  <button class="logout" id="btn-logout">↩ Выйти из аккаунта</button>
 </aside>
 
 <main>
@@ -134,16 +148,28 @@
     <div id="notes-list"></div>
   </section>
 
-  <!-- PORTAL -->
-  <section id="v-portal" class="view portal">
+  <!-- ECAMPUS -->
+  <section id="v-ecampus" class="view web" data-home="https://ecampus.ncfu.ru/">
     <div class="portal-bar">
-      <button class="btn ghost" id="pv-back">←</button>
-      <button class="btn ghost" id="pv-fwd">→</button>
-      <button class="btn ghost" id="pv-reload">⟳</button>
-      <button class="btn ghost" id="pv-home">Вход</button>
-      <span class="muted" id="pv-url">https://el.ncfu.ru/login/index.php</span>
+      <button class="btn ghost" data-act="back" title="Назад">←</button>
+      <button class="btn ghost" data-act="fwd" title="Вперёд">→</button>
+      <button class="btn ghost" data-act="reload" title="Обновить">⟳</button>
+      <button class="btn ghost" data-act="home">Главная eCampus</button>
+      <span class="muted url">https://ecampus.ncfu.ru/</span>
     </div>
-    <webview id="pv" src="about:blank" partition="persist:ncfu" allowpopups></webview>
+    <webview src="about:blank" partition="persist:ncfu" allowpopups></webview>
+  </section>
+
+  <!-- МОИ КУРСЫ -->
+  <section id="v-courses" class="view web" data-home="https://el.ncfu.ru/my/">
+    <div class="portal-bar">
+      <button class="btn ghost" data-act="back" title="Назад">←</button>
+      <button class="btn ghost" data-act="fwd" title="Вперёд">→</button>
+      <button class="btn ghost" data-act="reload" title="Обновить">⟳</button>
+      <button class="btn ghost" data-act="home">Мои курсы</button>
+      <span class="muted url">https://el.ncfu.ru/my/</span>
+    </div>
+    <webview src="about:blank" partition="persist:ncfu" allowpopups></webview>
   </section>
 
   <!-- SETTINGS -->

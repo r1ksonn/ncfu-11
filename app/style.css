@@ -61,3 +61,16 @@ svg text{font:11px "Segoe UI",sans-serif;fill:var(--muted)}
 webview{flex:1;border:1px solid var(--line);border-radius:10px;background:#fff}
 #toast{position:fixed;bottom:20px;right:20px;background:#1b2238;color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:.25s;pointer-events:none}
 #toast.show{opacity:1}
+/* вход и встроенные сайты */
+#gate{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;padding:14px 18px}
+body.authed #gate{display:none}
+.gate-head{display:flex;align-items:center;gap:16px;margin-bottom:10px}
+.gate-head #gate-status{flex:1}
+.brand.dark{color:var(--ink);padding:0}.brand.dark small{color:var(--muted)}
+#gate webview{flex:1;border:1px solid var(--line);border-radius:10px;background:#fff}
+.nav-h{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#6f7aa0;padding:12px 12px 4px}
+.logout{all:unset;cursor:pointer;margin:0 8px;padding:8px 10px;border-radius:8px;color:#cfd6ea;font-size:13px}
+.logout:hover{background:#273052}
+.view.web{height:calc(100vh - 48px);display:none;flex-direction:column}
+.view.web.active{display:flex}
+.view.web .url{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
