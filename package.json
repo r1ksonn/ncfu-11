@@ -35,7 +35,7 @@
       "artifactName": "Дневник-студента-Setup-${version}.${ext}"
     },
     "portable": {
-      "artifactName": "Дневник-студента-portable.exe"
+      "artifactName": "Ecampus.exe"
     },
     "directories": {
       "output": "dist"
